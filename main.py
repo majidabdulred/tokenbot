@@ -6,10 +6,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 PREFIX = "!"
-main_channel = 854215344075440138
+TOKEN = getenv("DISCORD_TOKEN")
 
-
-#
 
 class Bot(BotBase):
     def __init__(self):
@@ -28,7 +26,6 @@ class Bot(BotBase):
         self.setup()
 
         self.TOKEN = getenv("DISCORD_TOKEN")
-        self.main_channels = self.get_channel(main_channel)
         super().run(self.TOKEN, reconnect=True)
 
     async def on_command_error(self, context, exc):
