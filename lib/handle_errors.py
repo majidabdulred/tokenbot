@@ -4,12 +4,14 @@ from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredAr
 
 async def handle_errors(exc, ctx):
     print(f"[!] {exc}")
-    if any([isinstance(exc, error) for error in (MissingRequiredArgument,  BadBoolArgument,BadArgument)]):
+    if any([isinstance(exc, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
         await ctx.send("Command not used properly.")
 
-    elif isinstance(exc, CommandNotFound):
-        print("Command not found")
-        pass
+    elif isinstance(exc.original, ValueError):
+        if exc.original.args[0] == "OpenseaApiError":
+            await ctx.send("Wrong Address")
+        elif exc.original.args[0] == "LenAddress":
+            await ctx.send("Wrong address")
 
     elif isinstance(exc.original, HTTPException):
         await ctx.send("Wrong Address")
@@ -19,6 +21,7 @@ async def handle_errors(exc, ctx):
 
     elif hasattr(exc, "original"):
         raise exc.original
+
 
     else:
         raise exc

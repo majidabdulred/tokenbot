@@ -1,4 +1,6 @@
 from discord import Message
+from discord_slash import ComponentContext
+from discord_slash import SlashContext, SlashCommand
 from lib.handle_errors import handle_errors
 from discord.ext.commands import Bot as BotBase
 from os import getenv
@@ -29,11 +31,9 @@ class Bot(BotBase):
         super().run(self.TOKEN, reconnect=True)
 
     async def on_command_error(self, context, exc):
-        print("[!] Error occured")
         await handle_errors(exc, context)
 
     async def on_message(self, message: Message):
-        print(message.content)
         if message.author != self.user:
             await self.process_commands(message)
 
@@ -45,4 +45,5 @@ class Bot(BotBase):
 
 
 bot = Bot()
+slash = SlashCommand(bot)
 bot.run()
