@@ -47,7 +47,7 @@ class Slash(Cog):
 
     @command(name="token")
     async def gettoken(self, ctx, tokenid: int):
-        if tokenid < 1 or tokenid > 20000:
+        if tokenid < 1 or tokenid > 20100:
             await ctx.send(":egg:")
             await ctx.send(f"{choice(choices_egg)}")
             return
