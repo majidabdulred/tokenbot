@@ -1,5 +1,4 @@
 from discord import Message
-from discord_slash import ComponentContext
 from discord_slash import SlashContext, SlashCommand
 from lib.handle_errors import handle_errors
 from discord.ext.commands import Bot as BotBase
@@ -45,5 +44,5 @@ class Bot(BotBase):
 
 
 bot = Bot()
-slash = SlashCommand(bot)
+slash = SlashCommand(bot, sync_commands=True)
 bot.run()

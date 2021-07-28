@@ -3,9 +3,11 @@ from discord import Embed
 from discord.ext.commands import Cog, command
 from aiohttp import request
 from discord_slash import ComponentContext
-from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.utils.manage_commands import create_option, create_choice
+from discord_slash.utils.manage_components import create_button, create_actionrow, create_select, create_select_option
 from discord_slash.model import ButtonStyle
-from discord_slash.cog_ext import cog_component
+from discord_slash.cog_ext import cog_component, cog_slash
+from discord.ext.commands.context import Context
 
 buttons = [create_button(style=ButtonStyle.green, label="Previous", custom_id='prev'),
            create_button(style=ButtonStyle.green, label="Next", custom_id='next')]
@@ -33,8 +35,11 @@ percent = {'Alien': 0.91, 'Amethyst': 10, 'Angry': 9, 'Anvil': 7, 'Autumn': 10, 
            'Summer': 10, 'Teal': 0.27, 'Teleport': 7, 'Vampire': 0.86, 'White': "", 'Wild Moss': 3, 'Winter': 10,
            'Yellow': 31}
 choices_egg = (
-'Not Dropped Yet', ':face_with_monocle: You think you are smarter than me. huh!', ':point_up: Its right there buddy',
-'Oops ! Got an egg instead')
+    'Not Dropped Yet', ':face_with_monocle: You think you are smarter than me. huh!',
+    ':point_up: Its right there buddy',
+    'Oops ! Got an egg instead')
+choices_tip = ("To get all CHICKS of an address type !owner <ADDRESS>", "You can also use !t instead of !token",
+               "You can also use !o instead of !owner", "Facing any issues (Contact me)[https://discord.gg/a2bXAxqe5j]")
 
 
 class Slash(Cog):
@@ -45,11 +50,24 @@ class Slash(Cog):
     async def say_hello(self, ctx):
         await ctx.send(f"{choice(('Hi', 'Hiya', 'Hey', 'Hola', 'Hello', 'Yo'))} {ctx.author.mention}")
 
+    @cog_slash(name="token", guild_ids=[632799582350475265],
+               description="Choose a token",
+               options=[
+                   create_option(
+                       name="tokenid",
+                       description="ID of the Token",
+                       option_type=4,
+                       required=True)])
+    async def getslashtoken(self, ctx, tokenid: int):
+        await self.gettoken(ctx, tokenid)
+
     @command(name="token")
     async def gettoken(self, ctx, tokenid: int):
+        print(ctx)
         if tokenid < 1 or tokenid > 20000:
             await ctx.send(":egg:")
-            await ctx.send(f"{choice(choices_egg)}")
+            if isinstance(ctx, Context):
+                await ctx.send(f"{choice(choices_egg)}")
             return
         data = await self.get_chicken_data(tokenid)
         embed = create_embed(data, tokenid)
@@ -61,20 +79,21 @@ class Slash(Cog):
         await ctx.send(embed=embed, components=[linkbuttons])
 
     @command(name="owner")
-    async def owner_tokens(self, ctx, id):
-        if len(id) != 42:
-            raise ValueError("LenAddress", id)
+    async def owner_tokens(self, ctx, address):
+        if len(address) != 42:
+            raise ValueError("LenAddress", address)
         async with request(method="GET",
-                           url=f"http://api.opensea.io/api/v2/assets/matic?asset_contract_address=0x8634666ba15ada4bbc83b9dbf285f73d9e46e4c2&owner={id}") as re:
+                           url=f"http://api.opensea.io/api/v2/assets/matic?asset_contract_address=0x8634666ba15ada4bbc83b9dbf285f73d9e46e4c2&owner={address}") as re:
             data = await re.json()
             if re.status != 200:
-                raise ValueError("OpenseaApiError", id)
+                raise ValueError("OpenseaApiError", address)
             if len(data["results"]) == 0:
-                await ctx.send(f"Oops! Seems like {id} has no Chicken")
+                await ctx.send(f"Oops! Seems like {address} has no Chicken")
             tokens = process_owner(data["results"])
             chicken_data = await self.get_chicken_data(tokens[0])
             embed = create_embed(chicken_data, tokens[0])
             embed.set_author(name=f"1/{len(tokens)}")
+            embed.set_footer(text=choice(choices_tip))
             message_id = await ctx.send(embed=embed, components=[actionrow])
             owner[message_id.id] = tokens
 
@@ -88,7 +107,7 @@ class Slash(Cog):
 
     async def nextprev(self, ctx: ComponentContext):
         if ctx.origin_message_id not in owner.keys():
-            raise ValueError("Message id not in cached database")
+            raise ValueError("Message address not in cached database")
         index = int(ctx.origin_message.embeds[0].author.name.split("/")[0]) - 1
         tokens = owner[ctx.origin_message_id]
         if ctx.custom_id == "next":
@@ -114,7 +133,7 @@ class Slash(Cog):
         async with request(method="GET",
                            url=f"https://crun-minter.herokuapp.com/tokens/{tokenid}") as re:
             if re.status != 200:
-                raise ValueError(f"Token id {tokenid} not found")
+                raise ValueError(f"Token address {tokenid} not found")
             data = (await re.json())
             lc_cache[tokenid] = data
             return data
