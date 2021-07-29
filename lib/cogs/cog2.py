@@ -77,7 +77,7 @@ class Slash(Cog):
     async def say_hello(self, ctx):
         await ctx.send(f"{choice(('Hi', 'Hiya', 'Hey', 'Hola', 'Hello', 'Yo'))} {ctx.author.mention}")
 
-    @cog_slash(name="token", guild_ids=[632799582350475265],
+    @cog_slash(name="token", guild_ids=[632799582350475265,846537412058021888],
                description="Choose a token",
                options=[
                    create_option(
