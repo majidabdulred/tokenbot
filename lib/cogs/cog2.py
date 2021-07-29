@@ -1,10 +1,11 @@
+from discord.ext import tasks
 from random import choice
-from discord import Embed
+from discord import Embed, Colour
 from discord.ext.commands import Cog, command
 from aiohttp import request
 from discord_slash import ComponentContext
-from discord_slash.utils.manage_commands import create_option, create_choice
-from discord_slash.utils.manage_components import create_button, create_actionrow, create_select, create_select_option
+from discord_slash.utils.manage_commands import create_option
+from discord_slash.utils.manage_components import create_button, create_actionrow
 from discord_slash.model import ButtonStyle
 from discord_slash.cog_ext import cog_component, cog_slash
 from discord.ext.commands.context import Context
@@ -14,7 +15,7 @@ buttons = [create_button(style=ButtonStyle.green, label="Previous", custom_id='p
 actionrow = create_actionrow(*buttons)
 lc_cache = dict()
 owner = {}
-
+warn_channel_ids = [854215344075440138, 866666604092063754, 854418136890474576, 854418163122307142]
 percent = {'Alien': 0.91, 'Amethyst': 10, 'Angry': 9, 'Anvil': 7, 'Autumn': 10, 'Bald Chicken': 13, 'Beauty': 9,
            'Black': 10, 'Black Hole': 0.51, 'Bloodshot': 9, 'Blue': 15, 'Blue Egg': 3, 'Blue Rooster': 7, 'Bulging': 9,
            'CK-47': 7, 'Candy': 2, 'Cherry Dusk': 0.54, 'Chicken': 24, 'Chickenapult': 8, 'Classic': 0.83,
@@ -38,13 +39,39 @@ choices_egg = (
     'Not Dropped Yet', ':face_with_monocle: You think you are smarter than me. huh!',
     ':point_up: Its right there buddy',
     'Oops ! Got an egg instead')
-choices_tip = ("To get all CHICKS of an address type !owner <ADDRESS>", "You can also use !t instead of !token",
-               "You can also use !o instead of !owner", "Facing any issues (Contact me)[https://discord.gg/a2bXAxqe5j]")
+choices_tip = (
+    "You can get info of all chickens of somenone by typing.\n!owner <ADDRESS> ",
+    "You can also use !t instead of !token.",
+    "You can also use !o instead of !owner.",
+    "We are always available to help you so clear your doubts in #questions channel.",
+    "You can also use slash commands try now type \n/token",
+    "The most valuable information can be found in pinned messages.",
+    "Our first drop of 20000 chickens was sold within 10 minutes.",
+    "While buying chickens from drop you dont have to pay gas fees . We take care of that.",
+)
 
 
 class Slash(Cog):
     def __init__(self, bot):
+
         self.bot = bot
+        self.data = []
+        self.warn_channels = []
+
+    @tasks.loop(hours=4.0)
+    async def printer(self):
+        embed = Embed(colour=Colour.red(),
+                      description="**ATTENTION**\nBe advised of scammers wanting to trade you. If you must trade, please message a mod to act as a middleman. Also keep an eye on anyone messaging you asking to trade, make sure their Discord ID's are authentic as there have been cases of impostors. Please stay safe")
+        for ch in self.warn_channels:
+            try:
+                await ch.send(embed=embed)
+                print(f"Send warning to {ch.name}")
+            except AttributeError:
+                raise ValueError("Channel not found", self.warn_channels)
+
+    def cog_unload(self):
+        print("Unloading")
+        self.printer.cancel()
 
     @command(name="hi", aliases=["Hello", "Hi", "hello", "hola", "hey"])
     async def say_hello(self, ctx):
@@ -61,9 +88,8 @@ class Slash(Cog):
     async def getslashtoken(self, ctx, tokenid: int):
         await self.gettoken(ctx, tokenid)
 
-    @command(name="token")
+    @command(name="token", aliases=["t"], )
     async def gettoken(self, ctx, tokenid: int):
-        print(ctx)
         if tokenid < 1 or tokenid > 20000:
             await ctx.send(":egg:")
             if isinstance(ctx, Context):
@@ -78,7 +104,7 @@ class Slash(Cog):
         linkbuttons = create_actionrow(*buttons2)
         await ctx.send(embed=embed, components=[linkbuttons])
 
-    @command(name="owner")
+    @command(name="owner",aliases=["o"])
     async def owner_tokens(self, ctx, address):
         if len(address) != 42:
             raise ValueError("LenAddress", address)
@@ -93,7 +119,6 @@ class Slash(Cog):
             chicken_data = await self.get_chicken_data(tokens[0])
             embed = create_embed(chicken_data, tokens[0])
             embed.set_author(name=f"1/{len(tokens)}")
-            embed.set_footer(text=choice(choices_tip))
             message_id = await ctx.send(embed=embed, components=[actionrow])
             owner[message_id.id] = tokens
 
@@ -104,6 +129,18 @@ class Slash(Cog):
     @cog_component()
     async def prev(self, ctx: ComponentContext):
         await self.nextprev(ctx)
+        await self.nextprev(ctx)
+
+    @Cog.listener()
+    async def on_ready(self):
+        print("[+] Ready")
+        for ids in warn_channel_ids:
+            ch = self.bot.get_channel(ids)
+            if ch is not None:
+                self.warn_channels.append(self.bot.get_channel(ids))
+            else:
+                print(f"[!] Can't find {ids}")
+        self.printer.start()
 
     async def nextprev(self, ctx: ComponentContext):
         if ctx.origin_message_id not in owner.keys():
@@ -128,7 +165,6 @@ class Slash(Cog):
 
     async def get_chicken_data(self, tokenid):
         if tokenid in lc_cache.keys():
-            print("cache")
             return lc_cache[tokenid]
         async with request(method="GET",
                            url=f"https://crun-minter.herokuapp.com/tokens/{tokenid}") as re:
