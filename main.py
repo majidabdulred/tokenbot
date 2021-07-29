@@ -1,10 +1,10 @@
 from discord import Message
-from discord_slash import ComponentContext
-from discord_slash import SlashContext, SlashCommand
+from discord_slash import SlashCommand
 from lib.handle_errors import handle_errors
 from discord.ext.commands import Bot as BotBase
 from os import getenv
 from dotenv import load_dotenv
+from discord import TextChannel
 
 load_dotenv()
 PREFIX = "!"
@@ -45,5 +45,5 @@ class Bot(BotBase):
 
 
 bot = Bot()
-slash = SlashCommand(bot)
+slash = SlashCommand(bot, sync_commands=True)
 bot.run()
