@@ -4,10 +4,10 @@ from lib.handle_errors import handle_errors
 from discord.ext.commands import Bot as BotBase
 from os import getenv
 from dotenv import load_dotenv
-from discord import TextChannel
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 load_dotenv()
-PREFIX = "!"
+PREFIX = "!!"
 TOKEN = getenv("DISCORD_TOKEN")
 
 
@@ -17,6 +17,7 @@ class Bot(BotBase):
         self.ready = False
         self.guild = None
         self.conn = 0
+        self.scheduler = AsyncIOScheduler()
 
         super().__init__(command_prefix=PREFIX)
 
@@ -32,6 +33,12 @@ class Bot(BotBase):
 
     async def on_command_error(self, context, exc):
         await handle_errors(exc, context)
+
+    async def on_slash_command_error(self, ctx, exc):
+        await handle_errors(exc, ctx)
+
+    async def on_component_callback_error(self, ctx, ex):
+        await handle_errors(ex, ctx)
 
     async def on_message(self, message: Message):
         if message.author != self.user:

@@ -1,28 +1,34 @@
 from discord.errors import HTTPException, Forbidden
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, BadBoolArgument
+from pandas.core.indexing import IndexingError
+from discord_slash.error import IncorrectFormat
 
 
 async def handle_errors(exc, ctx):
     print(f"[!] {exc}")
-    if any([isinstance(exc, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
+    if hasattr(exc, "original"):
+        Error = exc.original
+    else:
+        Error = exc
+    if any([isinstance(Error, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
         await ctx.send("Command not used properly.")
 
-    elif isinstance(exc, CommandNotFound):
+    elif isinstance(Error, CommandNotFound):
         pass
 
-    elif isinstance(exc.original, HTTPException):
-        await ctx.send("Wrong Address")
+    elif isinstance(Error, HTTPException):
+        pass
 
-    elif isinstance(exc.original, Forbidden):
+    elif isinstance(Error, Forbidden):
         await ctx.send("Don't have permissions")
-    elif isinstance(exc.original, ValueError):
-        if exc.original.args[0] == "OpenseaApiError":
+    elif isinstance(Error, ValueError):
+        if Error.args[0] == "OpenseaApiError":
             await ctx.send("Wrong Address")
-        elif exc.original.args[0] == "LenAddress":
+        elif Error.args[0] == "LenAddress":
             await ctx.send("Wrong address")
-    elif hasattr(exc, "original"):
-        raise exc.original
-
-
+    elif isinstance(Error, IndexingError):
+        await ctx.send("Please see pinned messages on how to use this command.")
+    elif isinstance(Error, IncorrectFormat):
+        pass
     else:
-        raise exc
+        raise Error
