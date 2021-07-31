@@ -102,8 +102,6 @@ class Slash(Cog):
 
     @command(name="owner", aliases=["o"])
     async def owner_tokens(self, ctx, address):
-        print(address)
-        print(type(address))
         if len(address) != 42:
             raise ValueError("LenAddress", address)
         async with request(method="GET",

@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 load_dotenv()
-PREFIX = "!!"
+PREFIX = "!"
 TOKEN = getenv("DISCORD_TOKEN")
 
 
