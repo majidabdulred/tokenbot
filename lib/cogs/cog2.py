@@ -139,14 +139,30 @@ class Slash(Cog):
         self.bot.scheduler.add_job(self.printer, CronTrigger(hour="0,4,8,12,16,20"))
 
     async def printer(self):
+        def warn_messages(mess):
+            if len(mess.embeds) == 0:
+                return False
+            if mess.embeds[0].description == C.warning_message:
+                return True
+            return False
+
         embed = Embed(colour=Colour.red(),
                       description=C.warning_message)
         for ch in self.warn_channels:
-            try:
-                await ch.send(embed=embed)
-                print(f"Send warning to {ch.name}")
-            except AttributeError:
-                raise ValueError("Channel not found", self.warn_channels)
+            await ch.purge(limit=20, check=warn_messages)
+            await ch.send(embed=embed)
+            print(f"Send warning to {ch.name}")
+
+    @command(name="del")
+    async def delall(self, ctx: Context):
+        if ctx.author.id != 510105779274121216:
+            return
+
+        def is_me(m):
+            return m.author == self.bot.user
+
+        deleted = await ctx.channel.purge(limit=100, check=is_me)
+        await ctx.channel.send('Deleted {} message(s)'.format(len(deleted)))
 
     async def nextprev(self, ctx: ComponentContext):
         if ctx.origin_message_id not in owner.keys():

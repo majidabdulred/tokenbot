@@ -2,6 +2,8 @@ from discord_slash import ButtonStyle
 from discord_slash.utils.manage_components import create_button, create_actionrow
 from pandas import Series
 
+MODE = "PUBLISH"
+
 trait_list = {'gender': ['Hen', 'Rooster'],
               'heritage': ['Sultan', 'Dorking', 'Lakenvelder', 'Serama'],
               'talent': ['Jetpack', 'Chickenapult', 'Anvil', 'Dig', 'Blue Egg', 'Cold Snap', 'Moving Walkway',
@@ -54,7 +56,7 @@ actionrow = create_actionrow(*buttons)
 cols_to_rename = {'Gender': 'gender', 'Talent': 'talent', 'baseBody': 'body', 'Heritage': 'heritage',
                   'Stripes': 'stripes',
                   'eyesType': 'eye', 'beakAccessory': 'beak', 'background': 'bg'}
-warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
+
 percent = {'Alien': 0.91, 'Amethyst': 10, 'Angry': 9, 'Anvil': 7, 'Autumn': 10, 'Bald Chicken': 13, 'Beauty': 9,
            'Black': 10, 'Black Hole': 0.51, 'Bloodshot': 9, 'Blue': 15, 'Blue Egg': 3, 'Blue Rooster': 7, 'Bulging': 9,
            'CK-47': 7, 'Candy': 2, 'Cherry Dusk': 0.54, 'Chicken': 24, 'Chickenapult': 8, 'Classic': 0.83,
@@ -91,4 +93,9 @@ choices_tip = (
     "bg in the /filter command stands for background",
     "In later on updates you can see Opensea listed price in the result."
 )
-guild_ids = [846537412058021888, 868330968321257472]
+if MODE == "DEBUG":
+    guild_ids = [632799582350475265]
+    warn_channel_ids = [854215344075440138]
+else:
+    warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
+    guild_ids = [846537412058021888, 868330968321257472]

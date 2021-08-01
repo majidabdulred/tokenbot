@@ -13,10 +13,7 @@ async def handle_errors(exc, ctx):
     if any([isinstance(Error, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
         await ctx.send("Command not used properly.")
 
-    elif isinstance(Error, CommandNotFound):
-        pass
-
-    elif isinstance(Error, HTTPException):
+    elif any([isinstance(Error, error) for error in (CommandNotFound, HTTPException, AttributeError)]):
         pass
 
     elif isinstance(Error, Forbidden):
