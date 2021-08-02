@@ -1,3 +1,4 @@
+import signal
 from discord import Message
 from discord_slash import SlashCommand
 from lib.handle_errors import handle_errors
@@ -5,9 +6,9 @@ from discord.ext.commands import Bot as BotBase
 from os import getenv
 from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from lib.constants import PREFIX
 
 load_dotenv()
-PREFIX = "!"
 TOKEN = getenv("DISCORD_TOKEN")
 
 
@@ -23,6 +24,9 @@ class Bot(BotBase):
 
     def setup(self):
         self.load_extension(f"lib.cogs.cog2")
+        print("[+] Cog2 loaded.")
+        self.load_extension(f"lib.cogs.cog3")
+        print("[+] Cog3 loaded.")
 
     def run(self):
         print("[+] Running setup")
@@ -42,7 +46,30 @@ class Bot(BotBase):
 
     async def on_message(self, message: Message):
         if message.author != self.user:
-            await self.process_commands(message)
+            ctx = await self.get_context(message)
+            if ctx.valid:
+                await self.invoke(ctx)
+
+    async def on_ready(self):
+        print("[+] Ready")
+        self.data_channel = self.get_channel(868331067894013992)
+        self.error_channel = self.get_channel(870636269603000360)
+        if not self.ready:
+            try:
+                self.loop.add_signal_handler(getattr(signal, 'SIGINT'),
+                                             lambda: self.loop.create_task(self.signal_handler()))
+                self.loop.add_signal_handler(getattr(signal, 'SIGTERM'),
+                                             lambda: self.loop.create_task(self.signal_handler()))
+            except NotImplementedError:
+                print("[!] Signal handlers not added")
+            self.ready = True
+
+        else:
+            print("Bot reconnecting....")
+
+    async def signal_handler(self):
+        print("Time to say good bye")
+        await self.close()
 
     async def on_connect(self):
         print("[+] Bot Connected")

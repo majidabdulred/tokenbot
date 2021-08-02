@@ -92,10 +92,13 @@ choices_tip = (
     "You can also click on Chicken name to go to its opensea page",
     "bg in the /filter command stands for background",
     "In later on updates you can see Opensea listed price in the result."
+    "Use !verify command to verify your account. It give you access to a lot of perks in the future."
 )
 if MODE == "DEBUG":
     guild_ids = [632799582350475265]
     warn_channel_ids = [854215344075440138]
+    PREFIX = "!"
 else:
     warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
     guild_ids = [846537412058021888, 868330968321257472]
+    PREFIX = "!"

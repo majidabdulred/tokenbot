@@ -28,7 +28,7 @@ class Slash(Cog):
 
     @command(name="hi", aliases=["Hello", "Hi", "hello", "hola", "hey"])
     async def say_hello(self, ctx):
-        await ctx.send(f"{choice(('Hi', 'Hiya', 'Hey', 'Hola', 'Hello', 'Yo'))} {ctx.author.mention}")
+        await ctx.reply(f"{choice(('Hi', 'Hiya', 'Hey', 'Hola', 'Hello', 'Yo'))} {ctx.author.mention}")
 
     @cog_slash(name="token", guild_ids=C.guild_ids,
                description="Choose a token",
@@ -89,7 +89,7 @@ class Slash(Cog):
         if tokenid < 1 or tokenid > 20100:
             await ctx.send(":egg:")
             if isinstance(ctx, Context):
-                await ctx.send(f"{choice(C.choices_egg)}")
+                await ctx.reply(f"{choice(C.choices_egg)}")
             return
         data = await self.get_chicken_data(tokenid)
         embed = create_embed(data, tokenid)
@@ -110,12 +110,12 @@ class Slash(Cog):
             if re.status != 200:
                 raise ValueError("OpenseaApiError", address)
             if len(data["results"]) == 0:
-                await ctx.send(f"Oops! Seems like {address} has no Chicken")
+                await ctx.reply(f"Oops! Seems like {address} has no Chicken")
             tokens = process_owner(data["results"])
             chicken_data = await self.get_chicken_data(tokens[0])
             embed = create_embed(chicken_data, tokens[0])
             embed.set_author(name=f"1/{len(tokens)}")
-            message_id = await ctx.send(embed=embed, components=[C.actionrow])
+            message_id = await ctx.reply(embed=embed, components=[C.actionrow])
             owner[message_id.id] = tokens
 
     @cog_component()
@@ -154,11 +154,13 @@ class Slash(Cog):
             print(f"Send warning to {ch.name}")
 
     @command(name="del")
-    async def delall(self, ctx: Context):
+    async def delall(self, ctx: Context,all:str):
         if ctx.author.id != 510105779274121216:
             return
 
         def is_me(m):
+            if all == "all":
+                return True
             return m.author == self.bot.user
 
         deleted = await ctx.channel.purge(limit=100, check=is_me)

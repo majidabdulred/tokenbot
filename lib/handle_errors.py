@@ -2,10 +2,11 @@ from discord.errors import HTTPException, Forbidden
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, BadBoolArgument
 from pandas.core.indexing import IndexingError
 from discord_slash.error import IncorrectFormat
+"pymongo.errors.DuplicateKeyError: E11000 duplicate key error collection: chick.users index: _id_ dup key: { _id: 1001 }, full error: {'index': 0, 'code': 11000, 'keyPattern': {'_id': 1}, 'keyValue': {'_id': 1001}, 'errmsg': 'E11000 duplicate key error collection: chick.users index: _id_ dup key: { _id: 1001 }'}"
 
 
 async def handle_errors(exc, ctx):
-    print(f"[!] {exc}")
+    print(f"[!] {ctx.author.name} {exc}")
     if hasattr(exc, "original"):
         Error = exc.original
     else:
@@ -15,7 +16,6 @@ async def handle_errors(exc, ctx):
 
     elif any([isinstance(Error, error) for error in (CommandNotFound, HTTPException, AttributeError)]):
         pass
-
     elif isinstance(Error, Forbidden):
         await ctx.send("Don't have permissions")
     elif isinstance(Error, ValueError):
