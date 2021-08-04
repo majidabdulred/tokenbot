@@ -23,6 +23,7 @@ class Bot(BotBase):
         super().__init__(command_prefix=PREFIX)
 
     def setup(self):
+        # self.load_extension(f"lib.cogs.testcog")
         self.load_extension(f"lib.cogs.cog2")
         print("[+] Cog2 loaded.")
         self.load_extension(f"lib.cogs.cog3")

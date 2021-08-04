@@ -1,4 +1,5 @@
 from discord_slash import ButtonStyle
+from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.utils.manage_components import create_button, create_actionrow
 from pandas import Series
 
@@ -102,3 +103,25 @@ else:
     warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
     guild_ids = [846537412058021888, 868330968321257472]
     PREFIX = "!"
+
+cache_data = {}
+lc_cache = {}
+owner = {}
+
+options_find = [
+    create_option(
+        name=category,
+        description="Choose one of the options",
+        option_type=3,
+        required=False,
+        choices=[
+            create_choice(name=trait, value=trait) for trait in trait_list[category]])
+    for category in trait_list.keys()]
+
+options_token = [
+                   create_option(
+                       name="tokenid",
+                       description="ID of the Token",
+                       option_type=4,
+                       required=True)]
+

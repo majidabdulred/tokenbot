@@ -1,17 +1,17 @@
 from discord.ext.commands import Cog, command
 from discord.ext.commands.context import Context
-from lib.mydb import find_list, update_data, insertdata
+from lib.mydb import find_list, insertdata
 from random import randint
-from discord import Embed, Colour
+from discord import Embed
 
-cache_data = {}
+from lib.constants import cache_data
 
 
 class Dbupdate(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="verify")
+    @command(name="verify", aliases=["join"])
     async def verify(self, ctx: Context):
         uid = randint(111111111111, 999999999999)
         await ctx.reply("Check your DM")
