@@ -6,6 +6,7 @@ import datetime as dt
 
 
 async def random_verification(data_channel, ctx):
+    return
     dm = ctx.author.dm_channel
     if dm is None:
         dm = await ctx.author.create_dm()
