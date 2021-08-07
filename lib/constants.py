@@ -98,11 +98,10 @@ choices_tip = (
 if MODE == "DEBUG":
     guild_ids = [632799582350475265]
     warn_channel_ids = [854215344075440138]
-    PREFIX = "!"
 else:
     warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
     guild_ids = [846537412058021888, 868330968321257472]
-    PREFIX = "!"
+PREFIX = "!"
 
 cache_data = {}
 lc_cache = {}

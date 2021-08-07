@@ -2,28 +2,25 @@ from discord.ext.commands import Cog, command
 from discord.ext.commands.context import Context
 from lib.mydb import find_list, insertdata
 from random import randint
-from discord import Embed
-
+from discord import Embed, DMChannel
 from lib.constants import cache_data
+
 
 
 class Dbupdate(Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @command(name="verifytiti", aliases=["join"])
-    async def verify(self, ctx: Context):
-        uid = randint(111111111111, 999999999999)
-        await ctx.reply("Check your DM")
-        await ctx.author.send(embed=Embed(title="Verify you address",
-                                          description=f" [Click Here](https://majidabdulred.github.io/getaddress/?{uid})"))
-        cache_data[uid] = {"user": ctx.author, "address": ""}
-
     @command(name="verify", aliases=["join"])
     async def verify(self, ctx: Context):
-        await ctx.message.delete()
-        to_delete = await ctx.reply("Sorry this service is currently unavailable.")
-        await to_delete.delete(delay=60)
+        print(f"{ctx.author.name} used verify")
+        if not isinstance(ctx.channel, DMChannel):
+            return
+        uid = randint(111111111111, 999999999999)
+        await ctx.send(embed=Embed(title="Verify you address",
+                                          description=f" [Click Here](https://majidabdulred.github.io/getaddress/?{uid})"))
+
+        cache_data[uid] = {"user": ctx.author, "address": ""}
 
     @command(name="submitdata")
     async def submitdata(self, ctx: Context, link: str, address: str):
@@ -52,7 +49,6 @@ class Dbupdate(Cog):
                 "achievemnts": []}
         await insertdata(data)
         del cache_data[int(uid)]
-        print("Successfully inserted the data")
         await user.send(f"Successfully verified your address {address}")
         await ctx.reply("Done and dusted.")
 
