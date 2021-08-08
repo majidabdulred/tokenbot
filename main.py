@@ -1,12 +1,15 @@
 import signal
 from discord import Message
 from discord_slash import SlashCommand
-from lib.handle_errors import handle_errors
+from lib.util.handle_errors import handle_errors
 from discord.ext.commands import Bot as BotBase
 from os import getenv
 from dotenv import load_dotenv
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from lib.constants import PREFIX
+from lib.util.constants import PREFIX
+from lib.mylogs.mylogger import getlogger
+mylogs = getlogger()
+
 
 load_dotenv()
 TOKEN = getenv("DISCORD_TOKEN")
@@ -25,12 +28,12 @@ class Bot(BotBase):
     def setup(self):
         # self.load_extension(f"lib.cogs.testcog")
         self.load_extension(f"lib.cogs.cog2")
-        print("[+] Cog2 loaded.")
+        mylogs.info("Cog2 loaded.")
         self.load_extension(f"lib.cogs.cog3")
-        print("[+] Cog3 loaded.")
+        mylogs.info("Cog3 loaded.")
 
     def run(self):
-        print("[+] Running setup")
+        mylogs.info("Running Setup")
         self.setup()
 
         self.TOKEN = getenv("DISCORD_TOKEN")
@@ -52,7 +55,7 @@ class Bot(BotBase):
                 await self.invoke(ctx)
 
     async def on_ready(self):
-        print("[+] Ready")
+        mylogs.info("Ready")
         self.data_channel = self.get_channel(868331067894013992)
         self.error_channel = self.get_channel(870636269603000360)
         if not self.ready:
@@ -62,21 +65,21 @@ class Bot(BotBase):
                 self.loop.add_signal_handler(getattr(signal, 'SIGTERM'),
                                              lambda: self.loop.create_task(self.signal_handler()))
             except NotImplementedError:
-                print("[!] Signal handlers not added")
+                mylogs.warning("Signal handlers not added")
             self.ready = True
 
         else:
-            print("Bot reconnecting....")
+            mylogs.warning("Bot reconnecting....")
 
     async def signal_handler(self):
-        print("Time to say good bye")
+        mylogs.critical("Time to say good bye")
         await self.close()
 
     async def on_connect(self):
-        print("[+] Bot Connected")
+        mylogs.info("Bot Connected")
 
     async def on_disconnect(self):
-        print("[!] Bot Disconnected")
+        mylogs.warning("Bot Disconnected")
 
 
 bot = Bot()

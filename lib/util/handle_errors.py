@@ -1,9 +1,14 @@
+import os
+import sys
+from lib.mylogs.mylogger import getlogger
+
 from discord.errors import HTTPException, Forbidden
 from discord.ext.commands import CommandNotFound, BadArgument, MissingRequiredArgument, BadBoolArgument
 from pandas.core.indexing import IndexingError
 from discord_slash.error import IncorrectFormat
 
 "pymongo.errors.DuplicateKeyError: E11000 duplicate key error collection: chick.users index: _id_ dup key: { _id: 1001 }, full error: {'index': 0, 'code': 11000, 'keyPattern': {'_id': 1}, 'keyValue': {'_id': 1001}, 'errmsg': 'E11000 duplicate key error collection: chick.users index: _id_ dup key: { _id: 1001 }'}"
+mylogs = getlogger()
 
 
 async def handle_errors(exc, ctx):
@@ -13,7 +18,9 @@ async def handle_errors(exc, ctx):
         Error = exc
     if isinstance(Error, CommandNotFound):
         return
-    print(f"[!] {ctx.author.name} {exc}")
+    exc_type, exc_obj, exc_tb = sys.exc_info()
+    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+    mylogs.exception(f"{fname} {exc_tb.tb_lineno} {ctx.author.name} {exc}")
     if any([isinstance(Error, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
         await ctx.send("Command not used properly.")
 

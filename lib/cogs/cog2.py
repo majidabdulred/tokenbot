@@ -7,14 +7,12 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from discord_slash.model import ButtonStyle
 from discord_slash.cog_ext import cog_component, cog_slash
 from discord.ext.commands.context import Context
-import lib.constants as C
-from lib.utils import create_embed, process_owner, get_chicken_data, nextprev, random_verification
-from pickle import load as pkload
-from pandas import DataFrame
+import lib.util.constants as C
+from lib.util.utils import create_embed, process_owner, get_chicken_data, nextprev, random_verification
 from apscheduler.triggers.cron import CronTrigger
-
-df: DataFrame = pkload(open("lib/df", "rb"))
-df.rename(columns=C.cols_to_rename, inplace=True)
+from lib.mylogs.mylogger import getlogger
+mylogs = getlogger()
+df = C.df
 
 
 class Slash(Cog):
@@ -116,13 +114,12 @@ class Slash(Cog):
     @Cog.listener()
     async def on_ready(self):
         self.bot.scheduler.start()
-        print("[+] Ready")
         for ids in C.warn_channel_ids:
             ch = self.bot.get_channel(ids)
             if ch is not None:
                 self.warn_channels.append(self.bot.get_channel(ids))
             else:
-                print(f"[!] Can't find {ids}")
+                mylogs.warning(f"[!] Can't find {ids}")
         self.bot.scheduler.add_job(self.printer, CronTrigger(hour="0,4,8,12,16,20"))
 
     async def printer(self):
@@ -131,7 +128,7 @@ class Slash(Cog):
         for ch in self.warn_channels:
             await ch.purge(limit=20, check=self.warn_messages)
             await ch.send(embed=embed)
-            print(f"Send warning to {ch.name}")
+            mylogs.info(f"Send warning to {ch.name}")
 
     @staticmethod
     def warn_messages(mess):

@@ -1,8 +1,8 @@
 from discord_slash import ButtonStyle
 from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.utils.manage_components import create_button, create_actionrow
-from pandas import Series
-
+from pandas import Series, DataFrame
+from pickle import load as pkload
 MODE = "PUBLISH"
 
 trait_list = {'gender': ['Hen', 'Rooster'],
@@ -124,3 +124,5 @@ options_token = [
                        option_type=4,
                        required=True)]
 
+df: DataFrame = pkload(open("df", "rb"))
+df.rename(columns=cols_to_rename, inplace=True)

@@ -1,10 +1,13 @@
 from discord.ext.commands import Cog, command
 from discord.ext.commands.context import Context
-from lib.mydb import find_list, insertdata
+from lib.db.mydb import find_list, insertdata
 from random import randint
 from discord import Embed, DMChannel
-from lib.constants import cache_data
+from lib.util.constants import cache_data
+import logging
+from lib.mylogs.mylogger import getlogger
 
+mylogs = getlogger()
 
 
 class Dbupdate(Cog):
@@ -13,12 +16,12 @@ class Dbupdate(Cog):
 
     @command(name="verify", aliases=["join"])
     async def verify(self, ctx: Context):
-        print(f"{ctx.author.name} used verify")
+        mylogs.info(f"{ctx.author.name} used verify")
         if not isinstance(ctx.channel, DMChannel):
             return
         uid = randint(111111111111, 999999999999)
         await ctx.send(embed=Embed(title="Verify you address",
-                                          description=f" [Click Here](https://majidabdulred.github.io/getaddress/?{uid})"))
+                                   description=f" [Click Here](https://majidabdulred.github.io/getaddress/?{uid})"))
 
         cache_data[uid] = {"user": ctx.author, "address": ""}
 
@@ -37,7 +40,7 @@ class Dbupdate(Cog):
         if len(previousdata) > 0:
             await user.send(f"You are already registered with {previousdata[0]['accounts'][0]['address']}")
             await ctx.reply(f"Already registered with {previousdata[0]['accounts'][0]['address']}")
-            print("Data already found")
+            mylogs.warning(f"{user.name}'s already stored as {previousdata[0]['accounts'][0]['address']}")
             return
         data = {"_id": user.id,
                 "discord":

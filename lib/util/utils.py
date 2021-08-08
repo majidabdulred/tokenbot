@@ -1,5 +1,5 @@
 from random import randint, choice
-import lib.constants as C
+import lib.util.constants as C
 from discord import Embed, Colour
 from aiohttp import request
 import datetime as dt
@@ -88,19 +88,3 @@ async def nextprev(ctx):
     embed = create_embed(data, token)
     embed.set_author(name=f"{index + 1}/{len(tokens)}")
     await ctx.edit_origin(embed=embed, components=[C.actionrow])
-
-
-async def printer(self):
-    def warn_messages(mess):
-        if len(mess.embeds) == 0:
-            return False
-        if mess.embeds[0].description == C.warning_message:
-            return True
-        return False
-
-    embed = Embed(colour=Colour.red(),
-                  description=C.warning_message)
-    for ch in self.warn_channels:
-        await ch.purge(limit=20, check=warn_messages)
-        await ch.send(embed=embed)
-        print(f"Send warning to {ch.name}")
