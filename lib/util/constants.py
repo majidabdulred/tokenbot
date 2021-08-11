@@ -4,7 +4,7 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 from pandas import Series, DataFrame
 from pickle import load as pkload
 
-MODE = "DEBUG"
+MODE = "PUBLISH"
 
 trait_list = {'gender': ['Hen', 'Rooster'],
               'heritage': ['Sultan', 'Dorking', 'Lakenvelder', 'Serama'],

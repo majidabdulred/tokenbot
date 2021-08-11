@@ -53,21 +53,25 @@ class LeaderBoard(Cog):
         #     await self.bot.message_board.edit(embed=embed)
 
     def which_role(self, points):
-        if points > 250:
+        if points > 200:
             return C.cluck_norris
-        elif points > 130:
+        elif points > 100:
             return C.attila
-        elif points > 115:
+        elif points > 50:
             return C.chicking
-        elif points >= 0:
+        elif points >= 15:
+            return C.coop
+        elif points >= 1:
             return C.coop
         else:
-            raise ValueError("Users points Error", points)
+            mylogs.warning(f"I think its {points}")
+            return None
 
     async def giverole(self, user):
         allroles = [C.cluck_norris, C.chicking, C.coop, C.attila, C.rancher]
         role = self.which_role(user[1])
-        allroles.remove(role)
+        if role is not None:
+            allroles.remove(role)
         mem = self.main_guild.get_member(user[0])
         if mem is None:
             mylogs.warning(f"Not found {user[0]}")
@@ -76,8 +80,11 @@ class LeaderBoard(Cog):
             if ee in mem.roles:
                 await mem.remove_roles(*allroles)
                 break
-        await mem.add_roles(role)
-        mylogs.info(f"{mem.name} given {role.name}")
+        if role is not None:
+            await mem.add_roles(role)
+            mylogs.info(f"{mem.name} given {role.name}")
+        else:
+            mylogs.info("It was 0")
 
     @command(name="giveroles")
     async def giveroles(self, ctx):
