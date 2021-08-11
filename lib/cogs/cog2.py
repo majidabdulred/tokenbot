@@ -25,6 +25,7 @@ class Slash(Cog):
 
     @command(name="hi", aliases=["Hello", "Hi", "hello", "hola", "hey"])
     async def say_hello(self, ctx):
+        mylogs.info(f"{ctx.author} used hi")
         await ctx.reply(f"{choice(('Hi', 'Hiya', 'Hey', 'Hola', 'Hello', 'Yo'))} {ctx.author.mention}")
 
     @cog_slash(name="token", guild_ids=C.guild_ids,
@@ -75,6 +76,7 @@ class Slash(Cog):
             if isinstance(ctx, Context):
                 await ctx.send(f"{choice(C.choices_egg)}")
             return
+        mylogs.info(f"{ctx.author} used token")
         data = await get_chicken_data(tokenid)
         embed = create_embed(data, tokenid)
         buttons2 = [create_button(style=ButtonStyle.URL, label="Opensea",
@@ -89,8 +91,9 @@ class Slash(Cog):
     async def owner_tokens(self, ctx, address):
         if len(address) != 42:
             raise ValueError("LenAddress", address)
+        mylogs.info(f"{ctx.author} used owner")
         async with request(method="GET",
-                           url=f"http://api.opensea.io/api/v2/assets/matic?asset_contract_address=0x8634666ba15ada4bbc83b9dbf285f73d9e46e4c2&owner={address}") as re:
+                           url=f"http://api.opensea.io/api/v2/assets/matic?asset_contract=0x8634666ba15ada4bbc83b9dbf285f73d9e46e4c2&owner_address={address}") as re:
             data = await re.json()
             if re.status != 200:
                 raise ValueError("OpenseaApiError", address)

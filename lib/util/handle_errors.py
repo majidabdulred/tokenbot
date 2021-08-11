@@ -18,9 +18,8 @@ async def handle_errors(exc, ctx):
         Error = exc
     if isinstance(Error, CommandNotFound):
         return
-    exc_type, exc_obj, exc_tb = sys.exc_info()
-    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-    mylogs.exception(f"{fname} {exc_tb.tb_lineno} {ctx.author.name} {exc}")
+
+    mylogs.exception(f"{ctx.author.name} {exc}")
     if any([isinstance(Error, error) for error in (MissingRequiredArgument, BadBoolArgument, BadArgument)]):
         await ctx.send("Command not used properly.")
 

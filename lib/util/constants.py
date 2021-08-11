@@ -3,7 +3,8 @@ from discord_slash.utils.manage_commands import create_option, create_choice
 from discord_slash.utils.manage_components import create_button, create_actionrow
 from pandas import Series, DataFrame
 from pickle import load as pkload
-MODE = "PUBLISH"
+
+MODE = "DEBUG"
 
 trait_list = {'gender': ['Hen', 'Rooster'],
               'heritage': ['Sultan', 'Dorking', 'Lakenvelder', 'Serama'],
@@ -98,9 +99,22 @@ choices_tip = (
 if MODE == "DEBUG":
     guild_ids = [632799582350475265]
     warn_channel_ids = [854215344075440138]
+    main_guild = 632799582350475265
+    cluck_norris = 874318078836613182
+    attila = 874318165339930724
+    chicking = 874318221950476389
+    coop = 874318291194241048
+    rancher = 875015372833689630
+    main_ch = 854215344075440138
 else:
     warn_channel_ids = [868331067894013992, 866666604092063754, 854418136890474576, 854418163122307142]
     guild_ids = [846537412058021888, 868330968321257472]
+    cluck_norris = 860211150994145301
+    attila = 860211281918296064
+    chicking = 860210698196746300
+    coop = 860211204818862110
+    rancher = 874297498271887461
+    main_ch = 874679638364946582
 PREFIX = "!"
 
 cache_data = {}
@@ -117,12 +131,13 @@ options_find = [
             create_choice(name=trait, value=trait) for trait in trait_list[category]])
     for category in trait_list.keys()]
 
+to_be_handled = []
 options_token = [
-                   create_option(
-                       name="tokenid",
-                       description="ID of the Token",
-                       option_type=4,
-                       required=True)]
+    create_option(
+        name="tokenid",
+        description="ID of the Token",
+        option_type=4,
+        required=True)]
 
 df: DataFrame = pkload(open("df", "rb"))
 df.rename(columns=cols_to_rename, inplace=True)
